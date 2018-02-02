@@ -12,6 +12,7 @@ from chainer import reporter
 
 from chainer.datasets import get_cifar10
 from chainer.datasets import get_cifar100
+chainer.using_config('cudnn_deterministic', True)
 
 import nets
 # VGG16VD

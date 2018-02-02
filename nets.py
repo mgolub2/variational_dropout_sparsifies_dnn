@@ -7,7 +7,6 @@ from chainer import functions as F
 from chainer import links as L
 
 import variational_dropout as VD
-import utils
 
 
 class LeNet300100VD(VD.VariationalDropoutChain):
@@ -63,8 +62,8 @@ class Block(chainer.Chain):
     """
 
     def __init__(self, out_channels, ksize, pad=1):
-        #initializer = chainer.initializers.HeNormal()
-        initializer = utils.OutputHeNormal()
+        initializer = chainer.initializers.HeNormal()
+        #initializer = utils.OutputHeNormal()
         super(Block, self).__init__(
             conv=L.Convolution2D(None, out_channels, ksize, pad=pad,
                                  nobias=True, initialW=initializer),
@@ -119,8 +118,8 @@ class VGG16(chainer.Chain):
     """
 
     def __init__(self, class_labels=10):
-        #initializer = chainer.initializers.HeNormal()
-        initializer = utils.OutputHeNormal()
+        initializer = chainer.initializers.HeNormal()
+        #initializer = utils.OutputHeNormal()
         super(VGG16, self).__init__(
             block1_1=Block(64, 3),
             block1_2=Block(64, 3),

@@ -127,13 +127,12 @@ class VariationalDropoutConvolution2D(chainer.links.Convolution2D):
 
     def __init__(self, in_channels, out_channels, ksize, stride=1, pad=0,
                  nobias=False, initialW=None, initial_bias=None,
-                 deterministic=False,
                  p_threshold=P_THRESHOLD, loga_threshold=LOGA_THRESHOLD,
                  initial_log_sigma2=INITIAL_LOG_SIGMA2):
         super(VariationalDropoutConvolution2D, self).__init__(
             in_channels, out_channels, ksize, stride, pad,
             nobias=nobias, initialW=initialW,
-            initial_bias=initial_bias, deterministic=deterministic)
+            initial_bias=initial_bias)
 
         self.add_param('log_sigma2', initializer=initial_log_sigma2)
         if in_channels is not None:
@@ -159,20 +158,17 @@ class VariationalDropoutConvolution2D(chainer.links.Convolution2D):
         if train:
             W = (1. - clip_mask) * W
             mu = F.convolution_2d(x, (1. - clip_mask) * W, b=None,
-                                  stride=self.stride, pad=self.pad,
-                                  deterministic=self.deterministic)
+                                  stride=self.stride, pad=self.pad)
             si = F.sqrt(
                 F.convolution_2d(x * x, F.exp(log_alpha) * W * W, b=None,
-                                 stride=self.stride, pad=self.pad,
-                                 deterministic=self.deterministic) + 1e-8)
+                                 stride=self.stride, pad=self.pad) + 1e-8)
             normal_noise = self.xp.random.normal(
                 0., 1., mu.shape).astype('f')
             activation = mu + si * normal_noise
             return F.bias(activation, b)
         else:
             return F.convolution_2d(x, (1. - clip_mask) * W, b,
-                                    stride=self.stride, pad=self.pad,
-                                    deterministic=self.deterministic)
+                                    stride=self.stride, pad=self.pad)
 
     def __call__(self, x):
         if self.W.data is None:
@@ -300,12 +296,10 @@ def get_vd_link(link,
         ksize = link.ksize
         stride = link.stride
         pad = link.pad
-        deterministic = link.deterministic
         new_link = VariationalDropoutConvolution2D(
             in_channels=in_channels, out_channels=out_channels,
             ksize=ksize, stride=stride, pad=pad,
             nobias=None, initialW=None, initial_bias=None,
-            deterministic=deterministic,
             p_threshold=p_threshold, loga_threshold=loga_threshold,
             initial_log_sigma2=initial_log_sigma2)
     else:
